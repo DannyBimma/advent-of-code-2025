@@ -27,18 +27,30 @@ int main() {
     char direction;
     int distance;
 
-    // Apply rotation with modulo arithmetic for wrapping
-    // Double modulo for L rotation because C
+    // Count how many times 0 is passed during this rotation
     if (sscanf(line, " %c%d", &direction, &distance) == 2) {
+      int zeros_during_rotation = 0;
+
+      // R: count how many times rotation goes from 99 to 0
+      if (direction == 'R') {
+        zeros_during_rotation = (position + distance) / 100;
+      } else {
+        // L: count how many times rotation goes from 0 to 99
+        if (position > 0 && distance >= position) {
+          zeros_during_rotation = (distance - position) / 100 + 1;
+        } else if (position == 0) {
+          zeros_during_rotation = distance / 100;
+        }
+      }
+
+      count += zeros_during_rotation;
+
+      // Apply rotation with modulo arithmetic for wrapping
       if (direction == 'L') {
         position = ((position - distance) % 100 + 100) % 100;
       } else if (direction == 'R') {
         position = (position + distance) % 100;
       }
-
-      // Increment counter after each rotation
-      if (position == 0)
-        count++;
     }
   }
 
