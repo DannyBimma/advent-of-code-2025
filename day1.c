@@ -15,7 +15,7 @@ int main() {
   int count = 0;
 
   // Open and read file
-  FILE *secretSauce = fopen("day_1_file.txt", "r");
+  FILE *secretSauce = fopen("day1_input.txt", "r");
   if (secretSauce == NULL) {
     fprintf(stderr, "Error: Could not open input file\n");
 
