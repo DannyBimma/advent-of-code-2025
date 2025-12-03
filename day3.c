@@ -11,7 +11,7 @@
 #include <string.h>
 
 // Prototype
-int find_max_joltage(char *line);
+long long find_max_joltage(char *line);
 
 int main() {
   FILE *fp = fopen("day3_input.txt", "r");
@@ -26,7 +26,7 @@ int main() {
 
   // Process each bank/line
   while (fgets(line, sizeof(line), fp)) {
-    int max_joltage = find_max_joltage(line);
+    long long max_joltage = find_max_joltage(line);
 
     total_sum += max_joltage;
   }
@@ -38,8 +38,7 @@ int main() {
   return 0;
 }
 
-int find_max_joltage(char *line) {
-  int max_joltage = 0;
+long long find_max_joltage(char *line) {
   int len = strlen(line);
 
   // Check for newline and rm if present
@@ -49,16 +48,42 @@ int find_max_joltage(char *line) {
     len--;
   }
 
-  // Try all pairs of positions (i, j) where i < j
-  for (int i = 0; i < len - 1; i++) {
-    for (int j = i + 1; j < len; j++) {
-      // Form a two-digit number from the pairs at positions i and j
-      int joltage = (line[i] - '0') * 10 + (line[j] - '0');
+  // Greedy algo to select 12 digits that form the largest number
+  int k = 12;      // Num of digit
+  char result[13]; // Digits + null terminator
+  int result_idx = 0;
+  int start = 0;
+  int remaining = k;
 
-      if (joltage > max_joltage)
-        max_joltage = joltage;
+  for (int i = 0; i < k; i++) {
+    // Search: start + (n - start - remaining)
+    // Leave enough digits for future picks
+    int search_end = start + (len - start - remaining);
+
+    // Find the largest digit from [start, search_end]
+    char max_digit = '0';
+    int max_pos = start;
+
+    for (int j = start; j <= search_end; j++) {
+      if (line[j] > max_digit) {
+        max_digit = line[j];
+        max_pos = j;
+      }
     }
+
+    // Add digit to result
+    result[result_idx++] = max_digit;
+
+    // Move to next position
+    start = max_pos + 1;
+
+    remaining--;
   }
 
-  return max_joltage;
+  result[result_idx] = '\0';
+
+  // Convert 12-digit string to a long long number
+  long long joltage = strtoll(result, NULL, 10);
+
+  return joltage;
 }
