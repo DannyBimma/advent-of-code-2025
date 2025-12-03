@@ -58,23 +58,33 @@ int main() {
 }
 
 int is_invalid_id(long long id) {
-  // Create char array for id, convert id to string and get id length
+  // Create char array for id, convert id to string, and get id length
   char str[50];
   sprintf(str, "%lld", id);
   int len = strlen(str);
 
-  // Since pattern is repeated exactly twice, string length MUST be even
-  if (len % 2 != 0)
-    return 0;
+  // Try all possible pattern lengths from 1 to len/2
+  // Pattern MUST repeat at least twice: max pattern length is len/2
+  for (int pattern_len = 1; pattern_len <= len / 2; pattern_len++) {
+    // Pattern length MUST divide total length evenly
+    if (len % pattern_len != 0)
+      continue;
 
-  // Split in de middle
-  int half = len / 2;
+    // Check if the entire string is made of the repeating pattern
+    int is_repeated = 1;
 
-  // Compare first half with second half
-  for (int i = 0; i < half; i++) {
-    if (str[i] != str[i + half])
-      return 0;
+    for (int i = pattern_len; i < len; i++) {
+      if (str[i] != str[i % pattern_len]) {
+        is_repeated = 0;
+        break;
+      }
+    }
+
+    // If valid repetition, invalid identification
+    if (is_repeated)
+      return 1;
   }
 
-  return 1;
+  // No repeating pattern found
+  return 0;
 }
