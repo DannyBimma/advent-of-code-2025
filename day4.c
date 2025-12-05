@@ -24,9 +24,27 @@ int main() {
 
   while (fgets(grid[rows], sizeof(grid[rows]), fp)) {
     int len = strlen(grid[rows]);
-    // Trim the ends and count the rows
-    if (len > 0 && grid[rows][len - 1] == '\n')
+    // Trim newline
+    if (len > 0 && grid[rows][len - 1] == '\n') {
       grid[rows][len - 1] = '\0';
+
+      len--;
+    }
+
+    // Trim trailing spaces
+    while (len > 0 && grid[rows][len - 1] == ' ') {
+      grid[rows][len - 1] = '\0';
+
+      len--;
+    }
+
+    // Skip leading spaces by shifting the string
+    char *start = grid[rows];
+    while (*start == ' ')
+      start++;
+
+    if (start != grid[rows])
+      memmove(grid[rows], start, strlen(start) + 1);
 
     rows++;
   }
