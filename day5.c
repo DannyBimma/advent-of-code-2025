@@ -17,7 +17,7 @@ struct Range {
 };
 
 // Prototype
-int is_fresh(long long id, struct Range ranges[], int num_ranges);
+int range_compare(const void *a, const void *b);
 
 int main() {
   FILE *fp = fopen("day5_input.txt", "r");
@@ -46,28 +46,58 @@ int main() {
     }
   }
 
-  // Read available IDs and count the fresh ones
-  int fresh_count = 0;
-  long long id;
-
-  while (fscanf(fp, "%lld", &id) == 1) {
-    if (is_fresh(id, ranges, num_ranges))
-      fresh_count++;
-  }
-
   fclose(fp);
 
-  printf("Fresh ingredients: %d\n", fresh_count);
+  // Sort ranges by start point
+  qsort(ranges, num_ranges, sizeof(struct Range), range_compare);
+
+  // Merge overlapping ranges
+  struct Range merged[1000];
+  int num_merged = 0;
+
+  merged[0] = ranges[0];
+  num_merged = 1;
+
+  for (int i = 1; i < num_ranges; i++) {
+    struct Range *last = &merged[num_merged - 1];
+    struct Range *current = &ranges[i];
+
+    // Check if current overlaps with last merged range
+    if (current->start <= last->end + 1) {
+      // Merge: extend the end if needed
+      if (current->end > last->end) {
+        last->end = current->end;
+      }
+    } else {
+      // No overlap = another merged range
+      merged[num_merged] = *current;
+      num_merged++;
+    }
+  }
+
+  // Count total IDs in merged ranges
+  long long total_count = 0;
+
+  for (int i = 0; i < num_merged; i++) {
+    long long count = merged[i].end - merged[i].start + 1;
+
+    total_count += count;
+  }
+
+  printf("Total fresh ingredient IDs: %lld\n", total_count);
 
   return 0;
 }
 
-// Check if ingredient id falls within fresh range
-int is_fresh(long long id, struct Range ranges[], int num_ranges) {
-  for (int i = 0; i < num_ranges; i++) {
-    if (id >= ranges[i].start && id <= ranges[i].end)
-      return 1;
-  }
+// Comparison function for qsort
+int range_compare(const void *a, const void *b) {
+  struct Range *r1 = (struct Range *)a;
+  struct Range *r2 = (struct Range *)b;
+
+  if (r1->start < r2->start)
+    return -1;
+  if (r1->start > r2->start)
+    return 1;
 
   return 0;
 }
