@@ -51,38 +51,59 @@ int main() {
 
   fclose(fp);
 
-  // Count for accessible rolls
-  int access_count = 0;
-
   // 8 directions(all adjacent): N, NE, E, SE, S, SW, W, NW
   int dr[] = {-1, -1, 0, 1, 1, 1, 0, -1}; // Row
   int dc[] = {0, 1, 1, 1, 0, -1, -1, -1}; // Column
 
-  for (int r = 0; r < rows; r++) {
-    int cols = strlen(grid[r]);
-    for (int c = 0; c < cols; c++) {
-      if (grid[r][c] == '@') {
-        // Count for adjacent '@' symbols
-        int neighbor_count = 0;
+  int total_removed = 0;
+  int current_removed;
 
-        for (int d = 0; d < 8; d++) {
-          int nr = r + dr[d];
-          int nc = c + dc[d];
+  do {
+    // Find all accessible rolls (< 4 neighbors) in current state
+    char to_remove[1000][1000] = {0};
+    current_removed = 0;
 
-          // Bounds check
-          if (nr >= 0 && nr < rows && nc >= 0 && nc < strlen(grid[nr])) {
-            if (grid[nr][nc] == '@')
-              neighbor_count++;
+    for (int r = 0; r < rows; r++) {
+      int cols = strlen(grid[r]);
+      for (int c = 0; c < cols; c++) {
+        if (grid[r][c] == '@') {
+          // Count adjacent '@' symbols
+          int neighbor_count = 0;
+
+          for (int d = 0; d < 8; d++) {
+            int nr = r + dr[d];
+            int nc = c + dc[d];
+
+            // Bounds check
+            if (nr >= 0 && nr < rows && nc >= 0 && nc < strlen(grid[nr])) {
+              if (grid[nr][nc] == '@')
+                neighbor_count++;
+            }
+          }
+
+          if (neighbor_count < 4) {
+            to_remove[r][c] = 1;
+
+            current_removed++;
           }
         }
-
-        if (neighbor_count < 4)
-          access_count++;
       }
     }
-  }
 
-  printf("Accessible rolls: %d\n", access_count);
+    // Remove all marked rolls at once
+    for (int r = 0; r < rows; r++) {
+      int cols = strlen(grid[r]);
+      for (int c = 0; c < cols; c++) {
+        if (to_remove[r][c])
+          grid[r][c] = '.';
+      }
+    }
+
+    total_removed += current_removed;
+
+  } while (current_removed > 0);
+
+  printf("Total removed: %d\n", total_removed);
 
   return 0;
 }
