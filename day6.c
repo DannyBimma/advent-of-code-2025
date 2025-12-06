@@ -63,43 +63,38 @@ int main() {
   for (int c = 0; c <= max_len; c++) {
     if (c == max_len || is_separator[c]) {
       if (start != -1) {
-        // Found a problem from column start to c-1
+        // Read columns RIGHT-TO-LEFT
         long long numbers[100];
         int num_count = 0;
         char operation = 0;
 
-        for (int r = 0; r < num_lines; r++) {
-          char buffer[100] = {0};
+        // Process columns from right to left
+        for (int col = c - 1; col >= start; col--) {
+          char buffer[10] = {0};
           int buf_idx = 0;
 
-          // Extract chars from columns [start, c)
-          for (int col = start; col < c; col++) {
+          // Read this column top-to-bottom (excluding last row)
+          for (int r = 0; r < num_lines - 1; r++) {
             if (col < strlen(lines[r])) {
-              buffer[buf_idx++] = lines[r][col];
-            } else {
-              buffer[buf_idx++] = ' ';
+              char ch = lines[r][col];
+              if (ch != ' ')
+                buffer[buf_idx++] = ch;
             }
           }
           buffer[buf_idx] = '\0';
 
-          // Trim spaces
-          char *ptr = buffer;
+          // If digit, convert to number
+          if (buf_idx > 0)
+            numbers[num_count++] = atoll(buffer);
+        }
 
-          while (*ptr == ' ')
-            ptr++;
-
-          int len = strlen(ptr);
-
-          while (len > 0 && ptr[len - 1] == ' ')
-            ptr[--len] = '\0';
-
-          if (strlen(ptr) > 0) {
-            if (r == num_lines - 1) {
-              // Last row (the operator)
-              operation = ptr[0];
-            } else {
-              // Number
-              numbers[num_count++] = atoll(ptr);
+        // Get operator from last row (any column)
+        for (int col = start; col < c; col++) {
+          if (col < strlen(lines[num_lines - 1])) {
+            char ch = lines[num_lines - 1][col];
+            if (ch == '*' || ch == '+') {
+              operation = ch;
+              break;
             }
           }
         }
@@ -109,6 +104,7 @@ int main() {
 
         if (operation == '*') {
           result = 1;
+
           for (int i = 0; i < num_count; i++)
             result *= numbers[i];
         } else { // '+'
