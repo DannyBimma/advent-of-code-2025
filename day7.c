@@ -93,7 +93,7 @@ int main() {
         break;
       // Splitter
       if (grid[r][c] == '^') {
-        split_count++;
+        int added_beams = 0;
 
         // Add two new beams (left and right of splitter)
         if (c - 1 >= 0 && !visited[r][c - 1]) {
@@ -103,6 +103,7 @@ int main() {
           tail++;
 
           visited[r][c - 1] = 1;
+          added_beams++;
         }
         if (c + 1 < cols && !visited[r][c + 1]) {
           queue[tail].col = c + 1;
@@ -111,7 +112,12 @@ int main() {
           tail++;
 
           visited[r][c + 1] = 1;
+          added_beams++;
         }
+
+        // ONLY count split if new beams were created
+        if (added_beams > 0)
+          split_count++;
 
         break; // Beam stops at splitter
       }
