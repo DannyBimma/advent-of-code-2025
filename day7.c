@@ -27,7 +27,7 @@ int main() {
   }
 
   // Read the grid
-  char grid[1000][1000];
+  static char grid[1000][1000];
   int rows = 0;
   int cols = 0;
 
@@ -68,7 +68,10 @@ int main() {
   int head = 0, tail = 0;
 
   // Keep track of initial beams that were already processed
-  int visited[1000][1000] = {0};
+  static int visited[1000][1000] = {0};
+
+  // Track which splitters have been hit
+  static int hit_splitters[1000][1000] = {0};
 
   // Start with initial beam at S
   queue[tail].col = start_col;
@@ -93,7 +96,12 @@ int main() {
         break;
       // Splitter
       if (grid[r][c] == '^') {
-        int added_beams = 0;
+        // Count this splitter IF it was not hit it before
+        if (!hit_splitters[r][c]) {
+          hit_splitters[r][c] = 1;
+
+          split_count++;
+        }
 
         // Add two new beams (left and right of splitter)
         if (c - 1 >= 0 && !visited[r][c - 1]) {
@@ -103,7 +111,6 @@ int main() {
           tail++;
 
           visited[r][c - 1] = 1;
-          added_beams++;
         }
         if (c + 1 < cols && !visited[r][c + 1]) {
           queue[tail].col = c + 1;
@@ -112,12 +119,7 @@ int main() {
           tail++;
 
           visited[r][c + 1] = 1;
-          added_beams++;
         }
-
-        // ONLY count split if new beams were created
-        if (added_beams > 0)
-          split_count++;
 
         break; // Beam stops at splitter
       }
