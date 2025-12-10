@@ -1,5 +1,5 @@
 /*
- * Routine: Advent of Code--Day 9: Movie Theatre (Part 2) - Optimized
+ * Routine: Advent of Code--Day 9: Movie Theatre (Part 2)
  *
  * Author: DannyBimma
  *
